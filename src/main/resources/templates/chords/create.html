@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en"
+\>
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить аккорд</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h1>Добавить аккорд</h1>
+    <form th:action="@{/chords}" th:object="${chord}" method="post">
+        <div class="form-group">
+            <label for="name">Название</label>
+            <input type="text" class="form-control" id="name" th:field="*{name}" required>
+        </div>
+        <div class="form-group">
+            <label for="key">Тональность</label>
+            <input type="text" class="form-control" id="key" th:field="*{key}" required>
+        </div>
+        <div class="form-group">
+            <label for="type">Тип</label>
+            <input type="text" class="form-control" id="type" th:field="*{type}" required>
+        </div>
+        <div class="form-group">
+            <label for="imagePath">Путь к изображению</label>
+            <input type="text" class="form-control" id="imagePath" th:field="*{imagePath}">
+        </div>
+        <button type="submit" class="btn btn-success">Сохранить</button>
+        <a th:href="@{/chords}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+</body>
+</html>
