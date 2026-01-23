@@ -11,7 +11,8 @@ import ru.Project.crud_chords.model.Chord;
     Работает с разными БД: MySQL, PostgreSQL, MongoDB, Cassandra и даже с in-memory решениями.
 */
 
-public interface ChordRepository extends JpaRepository<Chord, Long> { // Cоздаем интерфейс, на основе которого умный спринг сделает реализацию
+public interface ChordRepository extends JpaRepository<Chord, Long> { // Cоздаем интерфейс, на основе
+                                                                        // которого умный спринг сделает реализацию
 
 
 }

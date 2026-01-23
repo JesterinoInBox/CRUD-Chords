@@ -1,10 +1,12 @@
 package ru.Project.crud_chords.controller;
 
-
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.Project.crud_chords.DTO.DTOChordForm;
 import ru.Project.crud_chords.model.Chord;
 import ru.Project.crud_chords.service.ChordService;
 
@@ -32,14 +34,18 @@ public class ChordController {
     }
 
     @PostMapping //Обработка HTTP POST-запроса
-    public String saveChord(@ModelAttribute Chord chord) { // Связываем поля из формы создания аккорда с объектом chord
-        chordService.saveChord(chord); // Передаем в сервис нужный аккорд для сохранения
+    public String saveChord(@Valid @ModelAttribute DTOChordForm form, BindingResult bindingResult) { // Связываем поля из формы создания аккорда с объектом chord
+        if(bindingResult.hasErrors()) {
+            return "chords/create";
+        }
+
+        chordService.saveChord(form); // Передаем в сервис нужный аккорд для сохранения
         return "redirect:/chords"; // перенаправляет на список (Post-Redirect-Get паттерн)
     }
 
     @GetMapping("/edit/{id}") // GET-запрос для формы редактирования аккорда
     public String showEditForm(@PathVariable Long id, Model model) { // Извлекаем id из url
-        model.addAttribute("chord", chordService.getChordById(id)); //
+        model.addAttribute("chord", chordService.getChordFormById(id)); //
         return "chords/edit";
     }
 
@@ -51,7 +57,7 @@ public class ChordController {
 
     @GetMapping("/{id}") // GET-запрос на просмотр нужного аккорда
     public String viewChord(@PathVariable Long id, Model model) {
-        model.addAttribute("chord", chordService.getChordById(id));
+        model.addAttribute("chord", chordService.getChordFormById(id));
         return "chords/view";
     }
 }
