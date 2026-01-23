@@ -21,7 +21,7 @@ public class ChordController {
 
     @GetMapping // Обработка HTTP GET-запроса
     public String ListChords(Model model) { // Полагаемся на спринг, он ответственный, model передаст сам
-        model.addAttribute("chords", chordService.getAllChords()); // Добавляем аттрибут к модели
+        model.addAttribute("chords", chordService.getAllChords()); // Добавляем атрибут к модели
         return "chords/list"; // Возвращаем имя шаблона Thymeleaf (templates/chords/list.html)
     }
 
