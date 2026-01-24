@@ -1,7 +1,6 @@
 package ru.Project.crud_chords.service;
 
 
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +8,10 @@ import ru.Project.crud_chords.DTO.DTOChordForm;
 import ru.Project.crud_chords.model.Chord;
 import ru.Project.crud_chords.repository.ChordRepository;
 
+import java.io.IOException;
 import java.util.List;
+
+import static java.sql.Types.NULL;
 
 @Service // Помечаем для спринга как сервис, потому что в этом классе будет реализована логика
 public class ChordService { // Очень важно создавать отдельный класс для
@@ -20,6 +22,9 @@ public class ChordService { // Очень важно создавать отде
             // создаем экземпляр и внедряем его как зависимость (точнее приказываем спрингу с этим разобраться)
 
     private ChordRepository chordRepository;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
 
     private Chord convertDTOFormToChord(DTOChordForm form) { // Конвертер из формы в сущность
@@ -58,9 +63,35 @@ public class ChordService { // Очень важно создавать отде
     }
 
     @Transactional(readOnly = true)
-    public void saveChord(DTOChordForm form) {  // Реализация как сохранения, так и апдейта аккорда
-        Chord chord = convertDTOFormToChord(form);
+    public void saveChord(DTOChordForm form) throws IOException {  // Реализация как сохранения, так и апдейта аккорда
+        Chord chord;
+
+        if(form.getId() != NULL) {
+            chord = chordRepository.findById(form.getId()).orElseThrow(() -> new RuntimeException("Аккорд не найден"));
+
+            if (form.getImageFile() != null && !form.getImageFile().isEmpty()) {
+                if (chord.getImageUrl() != null) {
+                    fileStorageService.deleteFile(chord.getImageUrl());
+                }
+            }
+        } else {
+            chord = new Chord();
+        }
+
+        chord.setName(form.getName());
+        chord.setDiagram(form.getDiagram());
+        chord.setCategory(form.getCategory());
+        chord.setLevel(form.getLevel());
+
+        if(form.getImageFile() != null && !form.getImageFile().isEmpty()) {
+            String imageUrl = fileStorageService.storeFile(form.getImageFile());
+            chord.setImageUrl(imageUrl);
+        } else if (form.getId() == NULL) {
+            chord.setImageUrl(null);
+        }
+
         chordRepository.save(chord);
+
     }
 
     @Transactional(readOnly = true)
