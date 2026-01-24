@@ -10,6 +10,8 @@ import ru.Project.crud_chords.DTO.DTOChordForm;
 import ru.Project.crud_chords.model.Chord;
 import ru.Project.crud_chords.service.ChordService;
 
+import java.io.IOException;
+
 @Controller // Снова отметка для спринга, указываем что наш контроллер теперь и его тоже.
             // Стоит учесть что он возвращает HTML, а не JSON как @RestContoller
 @RequestMapping("/chords") // Задаем базовый путь, все url-ссылки будут начинаться с /chords
@@ -34,7 +36,7 @@ public class ChordController {
     }
 
     @PostMapping //Обработка HTTP POST-запроса
-    public String saveChord(@Valid @ModelAttribute DTOChordForm form, BindingResult bindingResult) { // Связываем поля из формы создания аккорда с объектом chord
+    public String saveChord(@Valid @ModelAttribute DTOChordForm form, BindingResult bindingResult) throws IOException { // Связываем поля из формы создания аккорда с объектом chord
         if(bindingResult.hasErrors()) {
             return "chords/create";
         }
