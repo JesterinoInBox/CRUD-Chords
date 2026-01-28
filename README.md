@@ -21,12 +21,13 @@ Built with Spring Boot and PostgreSQL.
     git clone https://github.com/yourusername/guitar-chords-crud.git
     cd guitar-chords-crud
 
-  Configure Database 
-  -- Create database
+ # Configure Database 
+  Create database
   
     CREATE DATABASE chords_db;
 
   Configure Application
+  
   Edit src/main/resources/application.properties:
 
     spring.datasource.url=jdbc:postgresql://localhost:5432/chords_db
@@ -34,16 +35,18 @@ Built with Spring Boot and PostgreSQL.
     spring.datasource.password=your_password
     spring.jpa.hibernate.ddl-auto=update
 
-  Build and Run
+  # Build and Run
 
-  # Using Maven
+  Using Maven
+  
     mvn clean package
     java -jar target/crud-chords-0.0.1-SNAPSHOT.jar
 
-  # Or run directly with Maven
+  Or run directly with Maven
+  
     mvn spring-boot:run
 
-  Access the Application
+  # Access the Application
   Open your browser and navigate to:
 
     http://localhost:8000
