@@ -2,6 +2,10 @@ package ru.Project.crud_chords.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.Project.crud_chords.DTO.DTOChordForm;
@@ -34,7 +38,7 @@ public class ChordService { // Очень важно создавать отде
         chord.setLevel(form.getLevel());
         chord.setDiagram(form.getDiagram());
         chord.setCategory(form.getCategory());
-        chord.setImageUrl(form.getExistingImageURL());
+        chord.setImageUrl(form.getExistingImageUrl());
         return chord;
     }
 
@@ -45,7 +49,7 @@ public class ChordService { // Очень важно создавать отде
         form.setLevel(chord.getLevel());
         form.setDiagram(chord.getDiagram());
         form.setCategory(chord.getCategory());
-        form.setExistingImageURL(chord.getImageUrl());
+        form.setExistingImageUrl(chord.getImageUrl());
         return form;
     }
 
@@ -97,6 +101,32 @@ public class ChordService { // Очень важно создавать отде
     @Transactional(readOnly = true)
     public void deleteChord(Long id) { // Метод для удаления аккорда из БД по ID
         chordRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Chord> searchChords(String name, String category, String level, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
+
+        try {
+            if (name != null || category != null || level != null) {
+                return chordRepository.searchChords(name, category, level, pageable);
+            }
+
+            return chordRepository.findAll(pageable);
+        } catch (Exception e) {
+            // Если произошла ошибка - возвращаем пустую страницу
+            return Page.empty(pageable);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getAllCategories() {
+        return chordRepository.findAllCategories();
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getAllLevels() {
+        return chordRepository.findAllLevels();
     }
 
 }
