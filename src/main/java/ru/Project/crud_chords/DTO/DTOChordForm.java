@@ -24,5 +24,5 @@ public class DTOChordForm { // Добавили DTO для разделения 
 
     private MultipartFile imageFile;
 
-    private String existingImageURL;
+    private String existingImageUrl;
 }

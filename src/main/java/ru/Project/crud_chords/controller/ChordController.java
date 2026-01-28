@@ -1,6 +1,7 @@
 package ru.Project.crud_chords.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.validation.BindingResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,34 +24,6 @@ public class ChordController {
         this.chordService = chordService;
     }
 
-    @GetMapping // Обработка HTTP GET-запроса
-    public String ListChords(Model model) { // Полагаемся на спринг, он ответственный, model передаст сам
-        model.addAttribute("chords", chordService.getAllChords()); // Добавляем атрибут к модели
-        return "chords/list"; // Возвращаем имя шаблона Thymeleaf (templates/chords/list.html)
-    }
-
-    @GetMapping("/new") // /chord/new GET запрос
-    public String showCreateForm(Model model) {
-        model.addAttribute("chord", new Chord()); // Добавляем аккорд
-        return "chords/create"; // Выводим страницу создания нового аккорда
-    }
-
-    @PostMapping //Обработка HTTP POST-запроса
-    public String saveChord(@Valid @ModelAttribute DTOChordForm form, BindingResult bindingResult) throws IOException { // Связываем поля из формы создания аккорда с объектом chord
-        if(bindingResult.hasErrors()) {
-            return "chords/create";
-        }
-
-        chordService.saveChord(form); // Передаем в сервис нужный аккорд для сохранения
-        return "redirect:/chords"; // перенаправляет на список (Post-Redirect-Get паттерн)
-    }
-
-    @GetMapping("/edit/{id}") // GET-запрос для формы редактирования аккорда
-    public String showEditForm(@PathVariable Long id, Model model) { // Извлекаем id из url
-        model.addAttribute("chord", chordService.getChordFormById(id)); //
-        return "chords/edit";
-    }
-
     @PostMapping("/delete/{id}") // POST-запрос на удаление по ид
     public String deleteChord(@PathVariable Long id) { // Берем ид из url
         chordService.deleteChord(id); // Обращаемся к методу нашего сервиса
@@ -61,5 +34,61 @@ public class ChordController {
     public String viewChord(@PathVariable Long id, Model model) {
         model.addAttribute("chord", chordService.getChordFormById(id));
         return "chords/view";
+    }
+
+    @GetMapping
+    public String listChords(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String level,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+
+        Page<Chord> chordsPage = chordService.searchChords(name, category, level, page, size);
+
+        model.addAttribute("chordsPage", chordsPage);
+        model.addAttribute("name", name);
+        model.addAttribute("category", category);
+        model.addAttribute("level", level);
+        model.addAttribute("categories", chordService.getAllCategories());
+        model.addAttribute("levels", chordService.getAllLevels());
+
+        return "chords/list";
+    }
+
+    @GetMapping("/new")
+    public String showCreateForm(Model model) {
+        model.addAttribute("DTOChordForm", new DTOChordForm());
+        model.addAttribute("categories", chordService.getAllCategories());
+        model.addAttribute("levels", chordService.getAllLevels());
+        return "chords/form";
+    }
+
+    // Сохранение с валидацией
+    @PostMapping
+    public String saveChord(
+            @Valid @ModelAttribute("DTOChordForm") DTOChordForm DTOChordForm,
+            BindingResult bindingResult,
+            Model model) throws IOException {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("categories", chordService.getAllCategories());
+            model.addAttribute("levels", chordService.getAllLevels());
+            return "chords/form";
+        }
+
+        chordService.saveChord(DTOChordForm);
+        return "redirect:/chords";
+    }
+
+   
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model) {
+        DTOChordForm DTOChordForm = chordService.getChordFormById(id);
+        model.addAttribute("DTOChordForm", DTOChordForm);
+        model.addAttribute("categories", chordService.getAllCategories());
+        model.addAttribute("levels", chordService.getAllLevels());
+        return "chords/form";
     }
 }

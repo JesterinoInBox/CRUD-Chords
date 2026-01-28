@@ -2,9 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${chordForm.id != null} ? 'Редактирование аккорда' : 'Новый аккорд'">
+    <!-- БЕЗОПАСНЫЙ ВАРИАНТ: проверяем сначала объект -->
+    <title th:if="${DTOChordForm != null}"
+           th:text="${DTOChordForm.id != null} ? 'Редактирование аккорда' : 'Новый аккорд'">
         Новый аккорд
     </title>
+    <title th:unless="${DTOChordForm != null}">Форма аккорда</title>
+
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.0/css/bootstrap.min.css}">
 </head>
 <body>
@@ -13,139 +17,118 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h4 th:text="${chordForm.id != null} ? 'Редактирование аккорда' : 'Добавление нового аккорда'">
+                    <!-- БЕЗОПАСНЫЙ ВАРИАНТ -->
+                    <h4 th:if="${DTOChordForm != null}"
+                        th:text="${DTOChordForm.id != null} ? 'Редактирование аккорда' : 'Добавление нового аккорда'">
                         Новый аккорд
                     </h4>
+                    <h4 th:unless="${DTOChordForm != null}">Форма аккорда</h4>
                 </div>
 
                 <div class="card-body">
-                    <form th:action="@{/chords}"
-                          th:object="${chordForm}"
-                          method="post"
-                          enctype="multipart/form-data">
+                    <!-- Форма показываем только если DTOChordForm существует -->
+                    <div th:if="${DTOChordForm != null}">
+                        <form th:action="@{/chords}"
+                              th:object="${DTOChordForm}"
+                              method="post"
+                              enctype="multipart/form-data">
 
-                        <!-- Скрытое поле ID -->
-                        <input type="hidden" th:field="*{id}">
-                        <input type="hidden" th:field="*{existingImageUrl}">
+                        <!-- Скрытые поля -->
+                            <input type="hidden" th:field="*{id}">
+                            <input type="hidden" th:field="*{existingImageUrl}">
 
-                        <!-- Название аккорда -->
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Название аккорда *</label>
-                            <input type="text"
-                                   class="form-control"
-                                   id="name"
-                                   th:field="*{name}"
-                                   th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
-                                   placeholder="Например: C, Am, G7">
-                            <div th:if="${#fields.hasErrors('name')}" class="invalid-feedback">
-                                <span th:errors="*{name}"></span>
+                            <!-- Название аккорда -->
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Название аккорда *</label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="name"
+                                       th:field="*{name}"
+                                       th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                                       placeholder="Например: C, Am, G7">
+                                <div th:if="${#fields.hasErrors('name')}" class="invalid-feedback">
+                                    <span th:errors="*{name}"></span>
+                                </div>
+                                <div class="form-text">От 1 до 10 символов</div>
                             </div>
-                            <div class="form-text">От 1 до 10 символов</div>
-                        </div>
 
-                        <div class="row">
-                            <!-- Категория -->
-                            <div class="col-md-6 mb-3">
-                                <label for="category" class="form-label">Категория *</label>
-                                <select class="form-control"
-                                        id="category"
-                                        th:field="*{category}"
-                                        th:classappend="${#fields.hasErrors('category')} ? 'is-invalid' : ''">
-                                    <option value="">Выберите категорию</option>
-                                    <option th:each="cat : ${categories}"
-                                            th:value="${cat}"
-                                            th:text="${cat}">
-                                    </option>
-                                </select>
-                                <div th:if="${#fields.hasErrors('category')}" class="invalid-feedback">
-                                    <span th:errors="*{category}"></span>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="category" class="form-label">Категория *</label>
+                                    <select class="form-control"
+                                            id="category"
+                                            th:field="*{category}"
+                                            th:classappend="${#fields.hasErrors('category')} ? 'is-invalid' : ''">
+                                        <option value="">Выберите категорию</option>
+                                        <option th:each="cat : ${categories}"
+                                                th:value="${cat}"
+                                                th:text="${cat}">
+                                        </option>
+                                    </select>
+                                    <div th:if="${#fields.hasErrors('category')}" class="invalid-feedback">
+                                        <span th:errors="*{category}"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="level" class="form-label">Уровень сложности *</label>
+                                    <select class="form-control"
+                                            id="level"
+                                            th:field="*{level}"
+                                            th:classappend="${#fields.hasErrors('level')} ? 'is-invalid' : ''">
+                                        <option value="">Выберите уровень</option>
+                                        <option th:each="lvl : ${levels}"
+                                                th:value="${lvl}"
+                                                th:text="${lvl}">
+                                        </option>
+                                    </select>
+                                    <div th:if="${#fields.hasErrors('level')}" class="invalid-feedback">
+                                        <span th:errors="*{level}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="diagram" class="form-label">ASCII диаграмма</label>
+                                <textarea class="form-control"
+                                          id="diagram"
+                                          th:field="*{diagram}"
+                                          rows="5"
+                                          placeholder="Пример ASCII диаграммы"></textarea>
+                                <div class="form-text">
+                                    Используйте символы: | (струна), - (лад), ● (палец)
                                 </div>
                             </div>
 
-                            <!-- Уровень -->
-                            <div class="col-md-6 mb-3">
-                                <label for="level" class="form-label">Уровень сложности *</label>
-                                <select class="form-control"
-                                        id="level"
-                                        th:field="*{level}"
-                                        th:classappend="${#fields.hasErrors('level')} ? 'is-invalid' : ''">
-                                    <option value="">Выберите уровень</option>
-                                    <option th:each="lvl : ${levels}"
-                                            th:value="${lvl}"
-                                            th:text="${lvl}">
-                                    </option>
-                                </select>
-                                <div th:if="${#fields.hasErrors('level')}" class="invalid-feedback">
-                                    <span th:errors="*{level}"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ASCII диаграмма -->
-                        <div class="mb-3">
-                            <label for="diagram" class="form-label">ASCII диаграмма</label>
-                            <textarea class="form-control"
-                                      id="diagram"
-                                      th:field="*{diagram}"
-                                      rows="5"
-                                      placeholder="Пример:
-  0   1   2   3   4   5
-E |---|---|---|-●-|---
-B |---|-●-|---|---|---
-G |---|---|---|---|-●-
-D |---|---|---|---|---
-A |---|-●-|---|---|---
-E |---|---|---|---|---"></textarea>
-                            <div class="form-text">
-                                Используйте символы: | (струна), - (лад), ● (палец), цифры (лады)
-                            </div>
-                        </div>
-
-                        <!-- Загрузка изображения -->
-                        <div class="mb-3">
-                            <label for="imageFile" class="form-label">
-                                Изображение аккорда
-                            </label>
-
-                            <!-- Текущее изображение -->
-                            <div th:if="${chordForm.existingImageUrl}" class="mb-2">
-                                <p>Текущее изображение:</p>
-                                <img th:src="@{${chordForm.existingImageUrl}}"
-                                     alt="Текущее изображение"
-                                     class="img-thumbnail"
-                                     style="max-height: 150px;">
-                                <div class="form-check mt-2">
-                                    <input class="form-check-input"
-                                           type="checkbox"
-                                           id="deleteImage"
-                                           name="deleteImage">
-                                    <label class="form-check-label" for="deleteImage">
-                                        Удалить текущее изображение
-                                    </label>
+                            <div class="mb-3">
+                                <label for="imageFile" class="form-label">
+                                    Изображение аккорда
+                                </label>
+                                <input type="file"
+                                       class="form-control"
+                                       id="imageFile"
+                                       th:field="*{imageFile}"
+                                       accept="image/*">
+                                <div class="form-text">
+                                    Поддерживаемые форматы: JPG, PNG, GIF. Максимальный размер: 10MB.
                                 </div>
                             </div>
 
-                            <!-- Поле для загрузки -->
-                            <input type="file"
-                                   class="form-control"
-                                   id="imageFile"
-                                   th:field="*{imageFile}"
-                                   accept="image/*">
-                            <div class="form-text">
-                                Поддерживаемые форматы: JPG, PNG, GIF. Максимальный размер: 10MB.
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" class="btn btn-primary">
+                                    <span th:text="${DTOChordForm.id != null} ? 'Сохранить изменения' : 'Создать аккорд'">
+                                        Создать аккорд
+                                    </span>
+                                </button>
+                                <a th:href="@{/chords}" class="btn btn-secondary">Отмена</a>
                             </div>
-                        </div>
+                        </form>
+                    </div>
 
-                        <!-- Кнопки -->
-                        <div class="d-flex justify-content-between">
-                            <button type="submit" class="btn btn-primary">
-                                <span th:text="${chordForm.id != null} ? 'Сохранить изменения' : 'Создать аккорд'">
-                                    Создать аккорд
-                                </span>
-                            </button>
-                            <a th:href="@{/chords}" class="btn btn-secondary">Отмена</a>
-                        </div>
-                    </form>
+                    <!-- Сообщение об ошибке если DTOChordForm не существует -->
+                    <div th:unless="${DTOChordForm != null}" class="alert alert-danger">
+                        <h5>Ошибка!</h5>
+                        <p>Не удалось загрузить форму. Объект DTOChordForm не найден.</p>
+                        <a th:href="@{/chords}" class="btn btn-secondary">Вернуться к списку</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -155,7 +138,7 @@ E |---|---|---|---|---"></textarea>
 <script th:src="@{/webjars/bootstrap/5.3.0/js/bootstrap.bundle.min.js}"></script>
 <script>
     // Показ превью изображения перед загрузкой
-    document.getElementById('imageFile').addEventListener('change', function(e) {
+    document.getElementById('imageFile')?.addEventListener('change', function(e) {
         const deleteCheckbox = document.getElementById('deleteImage');
         if (deleteCheckbox) {
             deleteCheckbox.checked = false;
