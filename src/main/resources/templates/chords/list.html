@@ -56,9 +56,11 @@
     </div>
 
     <!-- Кнопка добавления -->
-    <a th:href="@{/chords/new}" class="btn btn-primary mb-3">
-        <i class="bi bi-plus-circle"></i> Добавить аккорд
-    </a>
+    <form th:action="@{/chords/new}" method="get" class="mb-3">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Добавить аккорд
+        </button>
+    </form>
 
     <!-- Список аккордов -->
     <div class="row">
@@ -88,16 +90,19 @@
                 </div>
 
                 <div class="card-footer">
-                    <div class="btn-group btn-group-sm" role="group">
-                        <a th:href="@{/chords/{id}(id=${chord.id})}"
-                           class="btn btn-outline-info">Просмотр</a>
-                        <a th:href="@{/chords/edit/{id}(id=${chord.id})}"
-                           class="btn btn-outline-warning">Редактировать</a>
-                        <button type="button"
-                                class="btn btn-outline-danger"
-                                th:onclick="|confirmDelete(${chord.id})|">
-                            Удалить
-                        </button>
+                    <div class="d-flex gap-1 flex-wrap">
+                        <form th:action="@{/chords/{id}(id=${chord.id})}" method="get" class="d-inline">
+                            <button type="submit" class="btn btn-outline-info">Просмотр</button>
+                        </form>
+                        <form th:action="@{/chords/edit/{id}(id=${chord.id})}" method="get" class="d-inline">
+                            <button type="submit" class="btn btn-outline-warning">Редактировать</button>
+                        </form>
+                        <form th:action="@{/chords/delete/{id}(id=${chord.id})}"
+                              method="post"
+                              class="d-inline"
+                              onsubmit="return confirm('Вы уверены, что хотите удалить этот аккорд?');">
+                            <button type="submit" class="btn btn-outline-danger">Удалить</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -165,17 +170,6 @@
 <script th:src="@{/webjars/bootstrap/5.3.0/js/bootstrap.bundle.min.js}"></script>
 
 <script>
-    // Подтверждение удаления
-    function confirmDelete(chordId) {
-        if (confirm('Вы уверены, что хотите удалить этот аккорд?')) {
-           const form = document.createElement('form');
-            form.method = 'post';
-            form.action = '/chords/delete/' + chordId;
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }
-
     // Авто-сабмит при изменении фильтров (опционально)
     document.querySelectorAll('select[name="category"], select[name="level"]').forEach(select => {
         select.addEventListener('change', function() {
