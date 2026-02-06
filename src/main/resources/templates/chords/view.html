@@ -69,17 +69,14 @@
             <div class="card mt-3">
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <form th:action="@{/chords/edit/{id}(id=${chord.id})}" method="get">
-                            <button type="submit" class="btn btn-warning w-100">Редактировать</button>
-                        </form>
-                        <form th:action="@{/chords/delete/{id}(id=${chord.id})}"
-                              method="post"
-                              onsubmit="return confirm('Вы уверены, что хотите удалить этот аккорд?');">
-                            <button type="submit" class="btn btn-danger w-100">Удалить</button>
-                        </form>
-                        <form th:action="@{/chords}" method="get">
-                            <button type="submit" class="btn btn-secondary w-100">Назад к списку</button>
-                        </form>
+                        <a th:href="@{/chords/edit/{id}(id=${chord.id})}"
+                           class="btn btn-warning">Редактировать</a>
+                        <button type="button"
+                                class="btn btn-danger"
+                                onclick="confirmDelete(${chord.id})">
+                            Удалить
+                        </button>
+                        <a th:href="@{/chords}" class="btn btn-secondary">Назад к списку</a>
                     </div>
                 </div>
             </div>
@@ -88,5 +85,12 @@
 </div>
 
 <script th:src="@{/webjars/bootstrap/5.3.0/js/bootstrap.bundle.min.js}"></script>
+<script>
+    function confirmDelete(chordId) {
+        if (confirm('Вы уверены, что хотите удалить этот аккорд?')) {
+            window.location.href = '/chords/delete/' + chordId;
+        }
+    }
+</script>
 </body>
-</html>
+</html>s
