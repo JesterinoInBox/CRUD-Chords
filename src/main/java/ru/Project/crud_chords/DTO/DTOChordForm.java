@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class DTOChordForm { // Добавили DTO для разделения сущности для БД и формы
-    private long id;
+    private Long id;
 
     @NotBlank(message = "Название аккорда не должно быть пустым")
     @Size(min = 1, max = 10, message = "Название от 1 до 10 символов")
