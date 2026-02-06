@@ -15,8 +15,6 @@ import ru.Project.crud_chords.repository.ChordRepository;
 import java.io.IOException;
 import java.util.List;
 
-import static java.sql.Types.NULL;
-
 @Service // Помечаем для спринга как сервис, потому что в этом классе будет реализована логика
 public class ChordService { // Очень важно создавать отдельный класс для
             // каждой части приложения, принцип единственной ответственности и всё такое :D вот это изменение
@@ -66,11 +64,11 @@ public class ChordService { // Очень важно создавать отде
         return convertChordToDTOForm(chord);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void saveChord(DTOChordForm form) throws IOException {  // Реализация как сохранения, так и апдейта аккорда
         Chord chord;
 
-        if(form.getId() != NULL) {
+        if(form.getId() != null) {
             chord = chordRepository.findById(form.getId()).orElseThrow(() -> new RuntimeException("Аккорд не найден"));
 
             if (form.getImageFile() != null && !form.getImageFile().isEmpty()) {
@@ -87,10 +85,10 @@ public class ChordService { // Очень важно создавать отде
         chord.setCategory(form.getCategory());
         chord.setLevel(form.getLevel());
 
-        if(form.getImageFile() != null && !form.getImageFile().isEmpty()) {
+        if (form.getImageFile() != null && !form.getImageFile().isEmpty()) {
             String imageUrl = fileStorageService.storeFile(form.getImageFile());
             chord.setImageUrl(imageUrl);
-        } else if (form.getId() == NULL) {
+        } else if (form.getId() == null) {
             chord.setImageUrl(null);
         }
 
@@ -98,12 +96,20 @@ public class ChordService { // Очень важно создавать отде
 
     }
 
-    @Transactional(readOnly = true)
-    public void deleteChord(Long id) { // Метод для удаления аккорда из БД по ID
-        chordRepository.deleteById(id);
+    @Transactional
+    public void deleteChord(Long id) throws IOException { // Метод для удаления аккорда из БД по ID
+        Chord chord = chordRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Аккорд не найден"));
+
+        if (chord.getImageUrl() != null && !chord.getImageUrl().isBlank()) {
+            fileStorageService.deleteFile(chord.getImageUrl());
+        }
+
+        chordRepository.delete(chord);
+
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Page<Chord> searchChords(String name, String category, String level, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("name").ascending());
 

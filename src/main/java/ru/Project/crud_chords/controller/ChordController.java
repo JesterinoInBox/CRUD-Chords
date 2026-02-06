@@ -25,7 +25,7 @@ public class ChordController {
     }
 
     @PostMapping("/delete/{id}") // POST-запрос на удаление по ид
-    public String deleteChord(@PathVariable Long id) { // Берем ид из url
+    public String deleteChord(@PathVariable Long id) throws IOException { // Берем ид из url
         chordService.deleteChord(id); // Обращаемся к методу нашего сервиса
         return "redirect:/chords"; //Перенаправляем на просмотр аккорда
     }
